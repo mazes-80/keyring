@@ -29,6 +29,16 @@ minetest.register_craftitem("keyring:keyring", {
 		return itemstack
 	end,
 	on_secondary_use = function(itemstack, placer, pointed_thing)
+		if pointed_thing.type == "object" then
+			local entity = pointed_thing.ref:get_luaentity()
+			if entity and entity.key_lock_secret and entity.key_on_use and
+				keyring.fields.utils.KRS.in_serialized_keyring(itemstack, entity.key_lock_secret) then
+				return entity:key_on_use(placer)
+			end
+		end
+		if placer:get_player_control().sneak and entity.on_rightclick then
+			entity:on_rightclick(placer)
+		end
 		return keyring.form.formspec(itemstack, placer)
 	end,
 	-- mod doc
